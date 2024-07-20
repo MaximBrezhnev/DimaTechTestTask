@@ -1,0 +1,16 @@
+services:
+  database:
+    image: postgres:16-alpine
+    restart: always
+    volumes:
+      - ~/.pg/pg_data/DT_TT:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "${EXTERNAL_DB_PORT}:${INTERNAL_DB_PORT}"
+    networks:
+      - custom
+
+networks:
+  custom:
+    driver: bridge

@@ -2,7 +2,10 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.config import database_settings
-from src.services.services import UserService, AuthService, AccountService, PaymentService
+from src.services.services import AccountService
+from src.services.services import AuthService
+from src.services.services import PaymentService
+from src.services.services import UserService
 
 
 async def get_db_session() -> AsyncSession:
@@ -21,11 +24,13 @@ def get_auth_service(db_session: AsyncSession = Depends(get_db_session)) -> Auth
     return AuthService(db_session=db_session)
 
 
-def get_account_service(db_session: AsyncSession = Depends(get_db_session)) -> AccountService:
+def get_account_service(
+    db_session: AsyncSession = Depends(get_db_session),
+) -> AccountService:
     return AccountService(db_session=db_session)
 
 
-def get_payment_service(db_session: AsyncSession = Depends(get_db_session)) -> PaymentService:
+def get_payment_service(
+    db_session: AsyncSession = Depends(get_db_session),
+) -> PaymentService:
     return PaymentService(db_session=db_session)
-
-

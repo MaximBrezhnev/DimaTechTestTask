@@ -1,13 +1,14 @@
 import hashlib
-from uuid import UUID
 
 from passlib.context import CryptContext
 
 from src.settings import project_settings
 
 pwd_context: CryptContext = CryptContext(
-    schemes=["bcrypt", ],
-    deprecated="auto"
+    schemes=[
+        "bcrypt",
+    ],
+    deprecated="auto",
 )
 
 
@@ -26,7 +27,7 @@ def verify_signature(data: dict) -> bool:
 
 def _generate_signature(data: dict) -> str:
     data.pop("signature", None)
-    concatenated_values = ''.join(str(data[key]) for key in sorted(data.keys()))
+    concatenated_values = "".join(str(data[key]) for key in sorted(data.keys()))
     concatenated_values += project_settings.SECRET_KEY
-    signature = hashlib.sha256(concatenated_values.encode('utf-8')).hexdigest()
+    signature = hashlib.sha256(concatenated_values.encode("utf-8")).hexdigest()
     return signature

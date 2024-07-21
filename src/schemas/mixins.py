@@ -1,11 +1,17 @@
 import re
-from typing import ClassVar, Optional
+from typing import ClassVar
+from typing import Optional
 
-from pydantic import model_validator, field_validator
+from pydantic import field_validator
+from pydantic import model_validator
 
 
 class UserValidationMixin:
-    FULL_NAME_LETTER_MATCH_PATTERN: ClassVar[re.Pattern] = re.compile(r"^[а-яА-Яa-zA-Z\- ]+$")
+    """Класс для проверки корректности переданных пользовательских данных"""
+
+    FULL_NAME_LETTER_MATCH_PATTERN: ClassVar[re.Pattern] = re.compile(
+        r"^[а-яА-Яa-zA-Z\- ]+$"
+    )
     MIN_FULL_NAME_LENGTH: ClassVar[int] = 1
     MAX_FULL_NAME_LENGTH: ClassVar[int] = 20
 
@@ -17,8 +23,8 @@ class UserValidationMixin:
     def validate_full_name(cls, full_name: Optional[str]) -> Optional[str]:
         if full_name is not None:
             if (
-                    len(full_name) < cls.MIN_FULL_NAME_LENGTH
-                    or len(full_name) > cls.MAX_FULL_NAME_LENGTH
+                len(full_name) < cls.MIN_FULL_NAME_LENGTH
+                or len(full_name) > cls.MAX_FULL_NAME_LENGTH
             ):
                 raise ValueError("Incorrect full name length")
 
@@ -55,5 +61,3 @@ class UserValidationMixin:
             raise ValueError("the passwords do not match")
 
         return data
-
-# проверки на account_id и amount

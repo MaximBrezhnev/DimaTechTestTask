@@ -1,6 +1,7 @@
 from typing import Optional
 
-from fastapi import HTTPException, Depends
+from fastapi import Depends
+from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from sqlalchemy import select
@@ -15,8 +16,7 @@ from src.services import security
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 credentials_exception = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Could not validate credentials"
+    status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials"
 )
 
 
@@ -41,11 +41,8 @@ async def get_current_user(
 
 
 async def _get_user_by_email_from_database(
-        email: str,
-        db_session: AsyncSession
+    email: str, db_session: AsyncSession
 ) -> Optional[User]:
     async with db_session.begin():
-        result = await db_session.execute(
-            select(User).filter_by(email=email)
-        )
+        result = await db_session.execute(select(User).filter_by(email=email))
         return result.scalars().first()

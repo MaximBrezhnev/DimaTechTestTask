@@ -1,10 +1,14 @@
 import os
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from pydantic_settings import BaseSettings
+from pydantic_settings import SettingsConfigDict
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
 
 
 class DatabaseSettings(BaseSettings):
+    """Класс, реализующий настройки соединения с базой данных"""
+
     DB_HOST: str
     EXTERNAL_DB_PORT: int
     INTERNAL_DB_PORT: int
@@ -29,11 +33,10 @@ class DatabaseSettings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=os.path.join(
-            os.path.dirname(os.path.dirname(
-                    os.path.dirname(os.path.abspath(__file__))
-                )
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             ),
-            ".env"
+            ".env",
         ),
         extra="ignore",
     )

@@ -1,11 +1,11 @@
 import uvicorn
-from fastapi import FastAPI, APIRouter
+from fastapi import APIRouter
+from fastapi import FastAPI
 
 from src.api.account import account_router
 from src.api.auth import auth_router
 from src.api.payment import payment_router
 from src.api.user import user_router
-from src.services import hashing
 from src.settings import project_settings
 
 
@@ -23,8 +23,4 @@ app.include_router(main_router)
 
 
 if __name__ == "__main__":
-    uvicorn.run(
-        app=app,
-        host=project_settings.APP_HOST,
-        port=project_settings.APP_PORT
-    )
+    uvicorn.run(app=app, host=project_settings.APP_HOST, port=project_settings.APP_PORT)

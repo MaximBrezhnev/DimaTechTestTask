@@ -11,6 +11,7 @@ from src.database.models import Payment
 from src.database.models import User
 from src.dependencies.basic_dependencies import get_payment_service
 from src.schemas.schemas import PaymentSchema
+from src.schemas.schemas import ShowPaymentSchema
 from src.services.services import PaymentService
 
 payment_router: APIRouter = APIRouter(
@@ -21,7 +22,7 @@ payment_router: APIRouter = APIRouter(
 )
 
 
-@payment_router.get("/", response_model=List[PaymentSchema])
+@payment_router.get("/", response_model=List[ShowPaymentSchema])
 async def get_payments(
     user: User = Depends(get_current_user),
     service: PaymentService = Depends(get_payment_service),
@@ -42,8 +43,8 @@ async def get_payments(
             status_code=status.HTTP_403_FORBIDDEN, detail="Admin cannot have payments"
         )
 
-    payments: List[Payment] = service.get_payments(user=user)
-    if payments is None:
+    payments: List[Payment] = await service.get_payments(user=user)
+    if not payments:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User does not have payments"
         )
@@ -72,7 +73,9 @@ async def process_payment(
             content={"message": "Payment was successfully processed"},
         )
     except ValueError as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exception)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exception)
+        )
     except PermissionError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

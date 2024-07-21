@@ -112,7 +112,7 @@ class UserService(BaseService):
         return user_for_update
 
     async def get_user(self, user_id: int) -> User:
-        user: User = self.user_dal.get_user_by_id(user_id=user_id)
+        user: User = await self.user_dal.get_user_by_id(user_id=user_id)
 
         if user is None:
             raise ValueError("User does not exist")
@@ -142,7 +142,9 @@ class AccountService(BaseService):
         return accounts
 
     async def get_accounts_by_user_id(self, user_id: int) -> List[Account]:
-        target_user: Optional[User] = self.user_dal.get_user_by_id(user_id=user_id)
+        target_user: Optional[User] = await self.user_dal.get_user_by_id(
+            user_id=user_id
+        )
         if target_user is None:
             raise ValueError("User does not exist")
         if target_user.is_admin:
@@ -178,12 +180,22 @@ class PaymentService(BaseService):
             account_id=account_id, user_id=user_id
         )
 
-        await self._check_payment(transaction_id=transaction_id)
+        await self._check_payment(
+            transaction_id=transaction_id,
+            user_id=user_id,
+            account_id=account_id,
+            amount=amount,
+            signature=signature,
+        )
+
+        if account is None:
+            account: Account = await self.account_dal.create_account(
+                account_id=account_id, user_id=user_id
+            )
 
         await self.account_dal.change_balance(account=account, amount=amount)
         await self.payment_dal.add_payment_to_database(
             transaction_id=transaction_id,
-            user_id=user_id,
             account_id=account_id,
             amount=amount,
             signature=signature,
@@ -201,14 +213,11 @@ class PaymentService(BaseService):
         account: Optional[Account] = await self.account_dal.get_account_by_id(
             account_id=account_id
         )
-        if account is None:
-            account: Account = await self.account_dal.create_account(
-                account_id=account_id, user_id=user_id
-            )
-        if account.user_id != user_id:
-            raise ValueError("Account does not belong to the specified user")
+        if account is not None:
+            if account.user_id != user_id:
+                raise ValueError("Account does not belong to the specified user")
 
-        return account
+            return account
 
     async def _check_payment(
         self,
@@ -236,11 +245,11 @@ class PaymentService(BaseService):
             raise ValueError("Signature is incorrect")
 
     async def get_payments(self, user: User) -> Optional[List[Payment]]:
-        accounts: List[Account] = self.account_dal.get_accounts_by_user_id(
+        accounts: List[Account] = await self.account_dal.get_accounts_by_user_id(
             user_id=user.user_id
         )
         if not accounts:
-            return
+            []
 
         payments = []
         for acc in accounts:

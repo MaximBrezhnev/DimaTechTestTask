@@ -43,9 +43,13 @@ class UserDAL(BaseDAL):
 
     async def create_user(self, full_name: str, email: str, password: str) -> User:
         async with self.db_session.begin():
-            user = User(full_name=full_name, email=email, hashed_password=password)
+            user: User = User(
+                full_name=full_name,
+                email=email,
+                hashed_password=hashing.get_password_hash(password),
+            )
             self.db_session.add(user)
-            await self.db_session.flush(user)
+            await self.db_session.flush()
 
             return user
 
@@ -58,7 +62,7 @@ class UserDAL(BaseDAL):
             if (email := parameters_for_update.get("email", None)) is not None:
                 setattr(user, "email", email)
             if (password := parameters_for_update.get("password1", None)) is not None:
-                setattr(user, hashing.get_password_hash("hashed_password"), password)
+                setattr(user, "hashed_password", hashing.get_password_hash(password))
 
     async def get_users(self) -> List[User]:
         async with self.db_session.begin():
@@ -111,7 +115,6 @@ class PaymentDAL(BaseDAL):
     async def add_payment_to_database(
         self,
         transaction_id: UUID,
-        user_id: int,
         account_id: int,
         amount: float,
         signature: str,
@@ -119,7 +122,6 @@ class PaymentDAL(BaseDAL):
         async with self.db_session.begin():
             payment: Payment = Payment(
                 transaction_id=transaction_id,
-                user_id=user_id,
                 account_id=account_id,
                 amount=amount,
                 signature=signature,

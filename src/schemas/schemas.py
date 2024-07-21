@@ -116,6 +116,7 @@ class PaymentSchema(BaseModel):
 
     Атрибуты:
     transaction_id (UUID): Уникальный идентификатор транзакции в “сторонней системе”;
+    user_id (int): Уникальный идентификатор пользователя, которому зачисляется платеж;
     account_id (int): Уникальный идентификатор счета пользователя, c которым связан платеж;
     amount (float): Сумма пополнения счета пользователя;
     signature (str): Подпись транзакции
@@ -126,3 +127,18 @@ class PaymentSchema(BaseModel):
     account_id: int = Field(..., gt=0)
     amount: float = Field(..., gt=0.0)
     signature: str
+
+
+class ShowPaymentSchema(BaseModel):
+    """
+    Схема для отображения информации о платеже
+
+    Атрибуты:
+    transaction_id (UUID): Уникальный идентификатор транзакции в “сторонней системе”;
+    account_id (int): Уникальный идентификатор счета пользователя, c которым связан платеж;
+    amount (float): Сумма пополнения счета пользователя;
+    """
+
+    transaction_id: UUID
+    account_id: int
+    amount: float

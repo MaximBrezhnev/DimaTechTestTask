@@ -11,6 +11,21 @@ services:
     networks:
       - custom
 
+  app:
+    build:
+      context: .
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    depends_on:
+      - database
+    command: >
+      sh -c "sleep 10 && alembic upgrade head && python3 -m src.main"
+    networks:
+      - custom
+
 networks:
   custom:
     driver: bridge

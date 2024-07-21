@@ -21,13 +21,17 @@ def get_password_hash(password: str) -> str:
 
 
 def verify_signature(data: dict) -> bool:
-    received_signature = data.get("signature", False)
-    return received_signature
+    received_signature = data.get("signature", None)
+    return received_signature == _generate_signature(data)
 
 
 def _generate_signature(data: dict) -> str:
     data.pop("signature", None)
+    if (amount := data.get("amount")) % 1 == 0:
+        data["amount"] = int(amount)
+
     concatenated_values = "".join(str(data[key]) for key in sorted(data.keys()))
     concatenated_values += project_settings.SECRET_KEY
+
     signature = hashlib.sha256(concatenated_values.encode("utf-8")).hexdigest()
     return signature

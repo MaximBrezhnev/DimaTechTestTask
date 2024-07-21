@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -74,7 +73,7 @@ async def get_current_user(
 
 @user_router.delete("/")
 async def delete_user(
-    user_id: UUID,
+    user_id: int,
     user: User = Depends(get_current_user),
     service: UserService = Depends(get_user_service),
 ) -> JSONResponse:
